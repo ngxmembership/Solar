@@ -22,6 +22,7 @@ import { CAM_LOOK, CAM_POS, ENV, EXPOSURE, FILL, FRAME, FRAME_Y, GLOW, HEMI, LEA
 import { SolarCore } from './core'
 import { PlanetSystem } from './planets'
 import { Shell } from './shell'
+import { CrystalSpheres } from './spheres'
 
 export interface SolarSceneOptions {
   isMobile: boolean
@@ -42,6 +43,7 @@ export class SolarScene {
   private shell: Shell
   private core: SolarCore
   private planets = new PlanetSystem()
+  private spheres = new CrystalSpheres()
   private atmosphere: Atmosphere
   private moon = new DirectionalLight(0xb8a8ff, 1)
   private fill = new DirectionalLight(0xcab8ff, 0.4)
@@ -90,7 +92,7 @@ export class SolarScene {
     this.moon.position.set(-4, 5, -6)
     this.fill.position.set(3, 2, 6)
     this.scene.add(this.atmosphere.sky, this.atmosphere.motes, this.moon, this.fill, this.hemi)
-    this.scene.add(this.shell.group, this.core.group, this.planets.group)
+    this.scene.add(this.shell.group, this.core.group, this.planets.group, this.spheres.group)
 
     this.resize()
     this.last = performance.now()
@@ -193,6 +195,7 @@ export class SolarScene {
     })
     this.core.update({ glow, open, leak: keyed(p, LEAK), spin: keyed(p, SPIN) * 0.6, spinBoost: this.spinBoost, time: this.time, dt, reducedMotion: rm, camera: this.camera })
     this.planets.update({ progress: p, dt, reducedMotion: rm, highlight: this.highlight, compact, center: this.core.group.position })
+    this.spheres.update(p, this.time, rm)
 
     this.renderer.toneMappingExposure = keyed(p, EXPOSURE)
     this.scene.environmentIntensity = keyed(p, ENV)

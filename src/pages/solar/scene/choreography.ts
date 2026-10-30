@@ -9,9 +9,10 @@ export const SHELL_LAYERS = {
 } as const
 
 export const SHELL = {
-  petals: 8,
+  /** Seven petals — seven crystal spheres of the old sky. */
+  petals: 7,
   /** Organic opening order (petal indices), not a mechanical sweep. */
-  order: [0, 4, 2, 6, 1, 5, 3, 7],
+  order: [0, 3, 6, 2, 5, 1, 4],
 } as const
 
 // Gradual, continuous S-curves: the shell stays sealed through the prologue, the outer "sky" loosens

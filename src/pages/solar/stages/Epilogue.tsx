@@ -1,8 +1,9 @@
 // Epilogue (after the story track, Solar stays risen): epigraph → image of the world + path
 // from thought to deed → the team's words and the call to support → footer.
 // Each row is its own <section> so it reveals as it enters the viewport.
-import { ArrowRight, Heart, HeartHandshake, Lightbulb, Sun, Sparkles } from 'lucide-react'
-import { EPIGRAPH, PRINCIPLES, WORLD_PARABLE } from '../content'
+import { ArrowRight, Hand, Heart, HeartHandshake, Lightbulb, Sun, Sparkles } from 'lucide-react'
+import { EPIGRAPH, PRINCIPLES, UNITY, WORLD_PARABLE } from '../content'
+import { CrystalSky } from './CrystalSky'
 
 const PRINCIPLE_ICONS = [Lightbulb, Sparkles, HeartHandshake]
 
@@ -39,6 +40,9 @@ export function Epilogue({ onDonate }: { onDonate: () => void }) {
           <span className="solar-dawn-text">{EPIGRAPH.answer}</span>
         </p>
       </section>
+
+      {/* How the world is arranged: seven crystal spheres around Solar */}
+      <CrystalSky />
 
       {/* Image of the world + the path from thought to deed */}
       <section data-panel="reveal" className="grid md:grid-cols-5 gap-4 md:gap-5 mb-4 md:mb-5">
@@ -100,6 +104,12 @@ export function Epilogue({ onDonate }: { onDonate: () => void }) {
             <p className="text-base md:text-lg leading-relaxed text-[#2a1f3d]/85">
               Если есть желание поддержать нас — каждый вклад помогает Солару светить ярче, а новым роликам, саммари и играм —
               появляться чаще.
+            </p>
+            <p className="mt-5 flex items-start gap-3 rounded-2xl bg-white/55 border border-white/80 px-4 py-3 text-sm md:text-[15px] leading-relaxed text-[#2a1f3d]/80">
+              <Hand className="w-5 h-5 shrink-0 mt-0.5 text-[color:var(--s-rust)]" />
+              <span>
+                <b className="font-bold text-[#2a1f3d]">Единый кулак.</b> {UNITY}
+              </span>
             </p>
           </div>
           <div className="relative flex flex-col items-start md:items-center gap-3 md:text-center">

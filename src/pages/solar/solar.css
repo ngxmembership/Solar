@@ -270,6 +270,16 @@
   animation: solar-cue 2s ease-in-out infinite;
 }
 
+/* Crystal spheres diagram: slow armillary turn around the centre of the SVG */
+.solar-orbit-spin {
+  transform-box: view-box;
+  transform-origin: 170px 170px;
+  animation: solar-spin 160s linear infinite;
+}
+@keyframes solar-spin {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes solar-rise {
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: none; }
