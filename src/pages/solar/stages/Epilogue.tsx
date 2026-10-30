@@ -19,7 +19,7 @@ function EggDiagram() {
           [16, 64],
           [56, 92],
         ].map(([x, y], i) => (
-          <span key={i} className="absolute w-[3px] h-[3px] rounded-full bg-amber-200" style=undefined />
+          <span key={i} className="absolute w-[3px] h-[3px] rounded-full bg-amber-200" style={{ left: x, top: y }} />
         ))}
       </div>
       <div className="absolute inset-[7px] rounded-[50%_50%_50%_50%/58%_58%_42%_42%] bg-[#fff8ee]" />

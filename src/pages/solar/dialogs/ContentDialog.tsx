@@ -96,7 +96,7 @@ export function ContentDialog({ selection, onClose }: { selection: Selection; on
               <DialogTitle className="solar-display text-xl flex items-center gap-2.5">
                 <span
                   className="w-5 h-5 rounded-full shrink-0"
-                  style=undefined
+                  style={{ background: `radial-gradient(circle at 32% 28%, #fff, ${selection.item.color} 55%)` }}
                 />
                 {selection.item.title}
               </DialogTitle>
@@ -107,7 +107,7 @@ export function ContentDialog({ selection, onClose }: { selection: Selection; on
                 <div className="flex flex-col items-center gap-4 py-6 text-center">
                   <span
                     className="w-20 h-20 rounded-full shadow-[0_12px_30px_-8px_rgba(42,31,61,0.45)]"
-                    style=undefined
+                    style={{ background: `radial-gradient(circle at 32% 28%, #fff, ${selection.item.color} 55%)` }}
                   />
                   <a href={selection.item.url} target="_blank" rel="noopener noreferrer" className="solar-btn solar-btn--ink !px-7 !py-3.5">
                     <Gamepad2 className="w-4 h-4" />

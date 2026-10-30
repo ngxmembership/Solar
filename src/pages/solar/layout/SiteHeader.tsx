@@ -88,7 +88,7 @@ export function SiteHeader({ light, scrolled, chapter, barRef, onNav, onDonate, 
         <div
           ref={barRef}
           className="h-full origin-left bg-gradient-to-r from-amber-300 via-orange-300 to-rose-300"
-          style=undefined
+          style={{ transform: 'scaleX(0)' }}
         />
       </div>
     </header>

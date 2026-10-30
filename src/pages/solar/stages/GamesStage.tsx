@@ -39,7 +39,10 @@ export function GamesStage({
                 <span className="relative w-9 h-9">
                   <span
                     className="absolute inset-0 rounded-full transition-transform duration-500 group-hover:scale-110"
-                    style=undefined
+                    style={{
+                      background: `radial-gradient(circle at 32% 28%, #fff 0%, ${g.color} 48%, ${g.color} 70%, rgba(42,31,61,0.25) 100%)`,
+                      boxShadow: `0 6px 18px -4px ${g.color}`,
+                    }}
                   />
                   <span className="absolute -inset-1.5 rounded-full border border-[#2a1f3d]/15 rotate-[-18deg] scale-y-[0.45]" />
                 </span>
