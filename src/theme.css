@@ -1,0 +1,37 @@
+:root {
+  --background: 0 0.0% 98.0%;
+  --foreground: 240 5.9% 10.0%;
+  --card: 0 0.0% 100.0%;
+  --card-foreground: 240 10.0% 3.9%;
+  --popover: 0 0.0% 100.0%;
+  --popover-foreground: 240 10.0% 3.9%;
+  --primary: 240 5.9% 10.0%;
+  --primary-foreground: 0 0.0% 98.0%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 10.0% 3.9%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --body-foreground: 240 5.3% 26.1%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 10.0% 3.9%;
+  --destructive: 15 68.6% 56.3%;
+  --destructive-foreground: 0 0.0% 98.0%;
+  --border: 240 5.9% 90.0%;
+  --input: 240 5.9% 90.0%;
+  --ring: 240 5.9% 10.0%;
+  --shadow-retool-sm: 0px 2px 4px rgba(55, 55, 55, 0.08), 0px 1px 1px rgba(0, 0, 0, 0.12);
+  --shadow-retool-md: 0px 6px 12px rgba(55, 55, 55, 0.08), 0px 2px 6px rgba(0, 0, 0, 0.12);
+  --shadow-retool-lg: 0px 10px 20px rgba(55, 55, 55, 0.08), 0px 4px 10px rgba(0, 0, 0, 0.12);
+  --radius: 0.5rem;
+  --spacing: 0.75rem;
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: #100c26;
+  color: hsl(var(--foreground));
+}
