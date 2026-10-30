@@ -188,6 +188,14 @@ export const BOOKS: Book[] = [
 // Built-in games, shown until public/games/games.json lists real ones.
 export const GAMES: Game[] = [
   {
+    id: 'ali-baba',
+    title: 'Али-Баба и сорок разбойников',
+    description: 'Сказочное приключение в 8 уровнях с озвучкой рассказчика и «Словом дня».',
+    color: '#ffb547',
+    playable: true,
+    url: 'https://ngxmembership.github.io/Solar/games/ali-baba/',
+  },
+  {
     id: 'memory',
     title: 'Память Солара',
     description: 'Найди все пары светлых символов за наименьшее число ходов.',
@@ -206,13 +214,6 @@ export const GAMES: Game[] = [
     title: 'Слова-светлячки',
     description: 'Лови буквы-светлячков и складывай из них слова.',
     color: '#8cc8f0',
-    playable: false,
-  },
-  {
-    id: 'habit-maze',
-    title: 'Лабиринт привычек',
-    description: 'Проведи героя к цели, выбирая полезные привычки.',
-    color: '#c4a8f0',
     playable: false,
   },
 ]

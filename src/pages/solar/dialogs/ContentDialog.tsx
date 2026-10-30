@@ -1,12 +1,22 @@
 // One branded dialog for whatever card the visitor opened: a video, a book summary or a game.
 import { useNavigate } from 'react-router-dom'
-import { BookOpen, Clock, Gamepad2, Play, Sparkles } from 'lucide-react'
+import { BookOpen, Clock, ExternalLink, Gamepad2, Play, Sparkles } from 'lucide-react'
 import { Button } from '../../../lib/shadcn/button'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../../lib/shadcn/dialog'
+import { cn } from '../../../lib/shadcn/utils'
 import type { Book, Game, Video } from '../content'
 import { MemoryGame } from './MemoryGame'
 
 export type Selection = { kind: 'video'; item: Video } | { kind: 'book'; item: Book } | { kind: 'game'; item: Game } | null
+
+/** Games hosted with the site can be embedded; others (e.g. in an editor preview) open in a new tab. */
+function isSameOrigin(url: string) {
+  try {
+    return new URL(url, window.location.href).origin === window.location.origin
+  } catch {
+    return false
+  }
+}
 
 function SoonNote({ children }: { children: string }) {
   return (
@@ -19,9 +29,47 @@ function SoonNote({ children }: { children: string }) {
 
 export function ContentDialog({ selection, onClose }: { selection: Selection; onClose: () => void }) {
   const navigate = useNavigate()
+  const embedUrl = selection?.kind === 'game' && selection.item.url && isSameOrigin(selection.item.url) ? selection.item.url : null
   return (
     <Dialog open={selection !== null} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="solar-dialog max-w-lg sm:rounded-[24px]">
+      <DialogContent
+        className={cn(
+          'solar-dialog sm:rounded-[24px]',
+          embedUrl ? 'max-w-[520px] w-[100vw] sm:w-[94vw] h-[100svh] sm:h-[92svh] max-h-none !p-0 !gap-0 rounded-none' : 'max-w-lg',
+        )}
+      >
+        {selection?.kind === 'game' && embedUrl && (
+          <>
+            <div className="flex items-center gap-3 px-4 py-3 pr-12 border-b">
+              <span
+                className="w-6 h-6 rounded-full shrink-0"
+                style={{ background: `radial-gradient(circle at 32% 28%, #fff, ${selection.item.color} 55%)` }}
+              />
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="solar-display text-base leading-tight truncate">{selection.item.title}</DialogTitle>
+                <DialogDescription className="text-xs truncate">Нажмите на игру, чтобы включить звук</DialogDescription>
+              </div>
+              <a
+                href={embedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold hover:bg-accent"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">В новой вкладке</span>
+              </a>
+            </div>
+            <iframe
+              key={embedUrl}
+              src={embedUrl}
+              title={selection.item.title}
+              allow="fullscreen; autoplay"
+              allowFullScreen
+              className="block w-full flex-1 min-h-0 border-0 bg-[#100c26]"
+            />
+          </>
+        )}
+
         {selection?.kind === 'video' && (
           <>
             <div className={`relative -mx-6 -mt-6 aspect-video bg-gradient-to-br overflow-hidden ${selection.item.gradient}`}>
@@ -90,7 +138,7 @@ export function ContentDialog({ selection, onClose }: { selection: Selection; on
           </>
         )}
 
-        {selection?.kind === 'game' && (
+        {selection?.kind === 'game' && !embedUrl && (
           <>
             <DialogHeader>
               <DialogTitle className="solar-display text-xl flex items-center gap-2.5">
