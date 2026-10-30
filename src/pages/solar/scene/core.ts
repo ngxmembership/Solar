@@ -1,5 +1,5 @@
 // Solar itself: plasma core, additive corona and the warm point light that lights the pearl petals.
-import { AdditiveBlending, Group, Mesh, PlaneGeometry, PointLight, ShaderMaterial, SphereGeometry, type Camera } from 'three'
+import { AdditiveBlending, Color, Group, Mesh, PlaneGeometry, PointLight, ShaderMaterial, SphereGeometry, type Camera } from 'three'
 import { range, smooth } from '../sceneMath'
 import { coreFragment, coreVertex, coronaFragment, coronaVertex, leakFragment } from './shaders'
 
@@ -12,17 +12,23 @@ export class SolarCore {
   private leak: Mesh
   private leakMat: ShaderMaterial
   private light = new PointLight(0xffc27a, 1, 0, 2)
+  private emberColor = new Color(0xff6a2a)
+  private dayColor = new Color(0xffe2b8)
 
   constructor(isMobile: boolean) {
+    // Fewer noise octaves on phones: same look at a glance, far cheaper per pixel.
+    const defines = { OCT: isMobile ? 3 : 4 }
     this.coreMat = new ShaderMaterial({
       vertexShader: coreVertex,
       fragmentShader: coreFragment,
+      defines,
       uniforms: { uTime: { value: 0 }, uGlow: { value: 0 } },
     })
     this.core = new Mesh(new SphereGeometry(1, isMobile ? 48 : 64, isMobile ? 32 : 48), this.coreMat)
     this.coronaMat = new ShaderMaterial({
       vertexShader: coronaVertex,
       fragmentShader: coronaFragment,
+      defines: { OCT: isMobile ? 2 : 3 },
       uniforms: { uTime: { value: 0 }, uStrength: { value: 0 } },
       transparent: true,
       depthWrite: false,
@@ -52,6 +58,7 @@ export class SolarCore {
     this.core.scale.setScalar(1 + Math.sin(o.time * 1.2) * 0.012 * o.glow)
     this.coronaMat.uniforms['uTime']!.value = o.time
     this.coronaMat.uniforms['uStrength']!.value = smooth(range(o.glow, 0.25, 1)) * 1.15
+    this.corona.visible = o.glow > 0.25
     this.corona.quaternion.copy(o.camera.quaternion)
     this.leakMat.uniforms['uTime']!.value = o.time
     this.leakMat.uniforms['uStrength']!.value = o.leak
@@ -60,5 +67,7 @@ export class SolarCore {
     this.leak.quaternion.copy(o.camera.quaternion)
     this.leak.rotateZ(o.time * 0.03)
     this.light.intensity = 0.4 + o.glow * 14
+    // Ember-red while sealed, warm white-gold once open.
+    this.light.color.copy(this.emberColor).lerp(this.dayColor, smooth(o.glow))
   }
 }

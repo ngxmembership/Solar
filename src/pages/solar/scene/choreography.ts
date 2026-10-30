@@ -4,8 +4,8 @@ import type { ColorKey, Key, VecKey } from '../sceneMath'
 
 /** Two nested layers: an outer celestial sphere and an inner kintsugi ceramic shell. */
 export const SHELL_LAYERS = {
-  outer: { radius: 1.32, maxAngle: (118 * Math.PI) / 180, gap: 0.018, phase: 0.5 },
-  inner: { radius: 1.16, maxAngle: (98 * Math.PI) / 180, gap: 0.026, phase: 0 },
+  outer: { radius: 1.32, thickness: 0.05, maxAngle: (118 * Math.PI) / 180, gap: 0.018, phase: 0.5 },
+  inner: { radius: 1.16, thickness: 0.045, maxAngle: (98 * Math.PI) / 180, gap: 0.026, phase: 0 },
 } as const
 
 export const SHELL = {

@@ -61,6 +61,7 @@ export class SolarScene {
   private w = 1
   private h = 1
   private readyFired = false
+  private frame = 0
   // Adaptive quality: sample frame times and drop pixel ratio if the device struggles.
   private perf = { frames: 0, total: 0, downgrades: 0 }
 
@@ -181,7 +182,7 @@ export class SolarScene {
     const compact = this.w < COMPACT_BREAKPOINT
 
     this.updateCamera(p, dt, compact)
-    this.shell.update({
+    const shellSettled = this.shell.update({
       openOuter: keyed(p, OPEN_OUTER),
       openInner: open,
       glow,
@@ -204,6 +205,17 @@ export class SolarScene {
     this.core.group.getWorldPosition(this.v3).project(this.camera)
     this.sunUv.set((this.v3.x + 1) / 2, (this.v3.y + 1) / 2)
     this.atmosphere.update({ progress: p, glow, time: this.time, stretch: this.stretch, sunUv: this.sunUv })
+
+    // Idle throttle: when scroll, petals and pointer are all at rest, only decorative motion is left
+    // (plasma, motes) — drawing every other frame halves GPU/battery use with no visible difference.
+    const idle =
+      shellSettled &&
+      Math.abs(this.target - this.p) < 1e-4 &&
+      Math.abs(this.velocity) < 2 &&
+      Math.abs(this.pointer.x - this.pointer.sx) < 0.003 &&
+      Math.abs(this.pointer.y - this.pointer.sy) < 0.003
+    this.frame++
+    if (idle && this.readyFired && (this.frame & 1) === 1) return
 
     this.renderer.render(this.scene, this.camera)
     if (!this.readyFired) {
