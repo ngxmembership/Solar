@@ -32,7 +32,7 @@ export function BooksStage({ onSelect }: { onSelect: (s: Selection) => void }) {
               >
                 <span className="absolute inset-y-0 left-0 w-2 bg-black/15" />
                 <span className="absolute inset-y-0 left-2 w-px bg-white/40" />
-                <span className="absolute -top-4 -right-4 w-14 h-14 rounded-full bg-white/40 blur-xl" />
+                <span className="solar-bloom absolute -top-8 -right-8 w-24 h-24" />
                 <span className="absolute inset-x-2.5 bottom-2 text-[9px] font-bold leading-tight text-[#2a1f3d]/85 line-clamp-3 md:hidden">
                   {b.title}
                 </span>

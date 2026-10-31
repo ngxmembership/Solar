@@ -25,7 +25,6 @@
   background-color: var(--s-night);
   color: #fff;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
 }
 
 .solar-root ::selection {
@@ -104,20 +103,24 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     0 40px 80px -40px rgba(184, 100, 31, 0.35);
 }
+/* No backdrop-filter: blurring a live WebGL canvas under every panel re-renders the blur each
+   frame and is the #1 source of scroll jank on laptops/phones. Denser glass reads the same. */
 @media (min-width: 768px) {
   .solar-glass-dark {
-    background: linear-gradient(180deg, rgba(36, 27, 74, 0.58), rgba(18, 13, 42, 0.5));
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    background: linear-gradient(180deg, rgba(38, 28, 78, 0.78), rgba(18, 13, 42, 0.72));
   }
   .solar-glass-light {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 248, 238, 0.56));
-    backdrop-filter: blur(18px) saturate(150%);
-    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 248, 238, 0.76));
   }
 }
 
 /* Inner tiles inside panels */
+/* Soft light bloom drawn with a gradient (a CSS blur filter would re-rasterize on every layer change). */
+.solar-bloom {
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.16) 40%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
 .solar-tile-dark {
   background: rgba(255, 255, 255, 0.045);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -200,8 +203,9 @@
   opacity: max(0, calc(1 - var(--p) * 1.5));
 }
 .solar-grain {
-  opacity: 0.07;
-  mix-blend-mode: overlay;
+  /* Plain alpha instead of mix-blend-mode: blending over WebGL forces a full-screen
+     composite pass every frame. */
+  opacity: max(0, calc(0.05 - var(--p) * 0.05));
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -211,8 +215,7 @@
   height: 520px;
   border-radius: 9999px;
   visibility: hidden;
-  background: radial-gradient(circle, rgba(255, 196, 120, 0.16) 0%, rgba(255, 170, 90, 0.06) 35%, transparent 65%);
-  mix-blend-mode: screen;
+  background: radial-gradient(circle, rgba(255, 200, 130, 0.14) 0%, rgba(255, 175, 95, 0.05) 35%, transparent 65%);
   opacity: max(0, calc(1 - var(--p) * 1.6));
   will-change: transform;
 }
@@ -226,6 +229,12 @@
 }
 .solar-poster[data-ready='true'] {
   opacity: 0;
+  /* Once faded, drop it from paint/compositing entirely and stop its animation. */
+  visibility: hidden;
+  transition: opacity 1.2s ease-out, visibility 0s linear 1.2s;
+}
+.solar-poster[data-ready='true'] .solar-poster-egg {
+  animation-play-state: paused;
 }
 .solar-poster-egg {
   position: absolute;

@@ -28,7 +28,9 @@ export class SolarCore {
     this.coronaMat = new ShaderMaterial({
       vertexShader: coronaVertex,
       fragmentShader: coronaFragment,
-      defines: { OCT: isMobile ? 2 : 3 },
+      // The corona covers a large part of the screen: two octaves of soft noise are
+      // indistinguishable from three under additive glow, at a third less fill cost.
+      defines: { OCT: 2 },
       uniforms: { uTime: { value: 0 }, uStrength: { value: 0 } },
       transparent: true,
       depthWrite: false,

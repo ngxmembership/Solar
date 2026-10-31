@@ -1,5 +1,7 @@
 // Owns the 3D scene + scroll director lifecycle and exposes the few UI states React needs.
 // High-frequency values (progress, bar width, --p) are written straight to the DOM, not to state.
+// --p goes only onto the tiny overlay layer (vignette/grain/cursor light), never the page root,
+// so a scroll frame never invalidates styles of the whole document.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AmbientSound } from './ambient'
 import { chapterIndexAt, LIGHT_FROM } from './chapters'
@@ -11,6 +13,7 @@ export function useSolarExperience() {
   const rootRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLElement>(null)
   const barRef = useRef<HTMLDivElement>(null)
+  const fxRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<SolarScene | null>(null)
   const directorRef = useRef<ScrollDirector | null>(null)
   const ambientRef = useRef(new AmbientSound())
@@ -70,7 +73,7 @@ export function useSolarExperience() {
     const timeoutId = idleId === null ? setTimeout(() => void boot(), 50) : null
 
     // Local mirrors so state is only set when a threshold is actually crossed.
-    const ui = { light: false, scrolled: false, chapter: 0 }
+    const ui = { light: false, scrolled: false, chapter: 0, fxP: -1, bar: -1 }
     const director = startScrollDirector(
       root,
       track,
@@ -79,8 +82,17 @@ export function useSolarExperience() {
         scene?.setProgress(p)
         scene?.setVelocity(v)
         ambientRef.current.setProgress(p)
-        root.style.setProperty('--p', p.toFixed(4))
-        if (barRef.current) barRef.current.style.transform = `scaleX(${p})`
+        // Overlays are fully faded past ~0.7 — stop touching them there; ignore sub-pixel changes.
+        const fxP = Math.round(Math.min(p, 0.7) * 500) / 500
+        if (fxP !== ui.fxP && fxRef.current) {
+          ui.fxP = fxP
+          fxRef.current.style.setProperty('--p', String(fxP))
+        }
+        const bar = Math.round(p * 1000) / 1000
+        if (bar !== ui.bar && barRef.current) {
+          ui.bar = bar
+          barRef.current.style.transform = `scaleX(${bar})`
+        }
         const nextLight = p >= LIGHT_FROM
         if (nextLight !== ui.light) setLight((ui.light = nextLight))
         const nextScrolled = window.scrollY > 24
@@ -125,5 +137,5 @@ export function useSolarExperience() {
     setSoundOn(a.running)
   }, [])
 
-  return { canvasRef, rootRef, trackRef, barRef, ready, webglFailed, light, scrolled, chapter, soundOn, goTo, highlight, toggleSound, setPlanetColors }
+  return { canvasRef, rootRef, trackRef, barRef, fxRef, ready, webglFailed, light, scrolled, chapter, soundOn, goTo, highlight, toggleSound, setPlanetColors }
 }

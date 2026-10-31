@@ -52,10 +52,10 @@ export function VideosStage({ onSelect }: { onSelect: (s: Selection) => void }) 
             >
               <div className={cn('relative h-24 md:h-28 bg-gradient-to-br overflow-hidden', v.gradient)}>
                 {/* soft light bloom + vignette for depth */}
-                <span className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-white/35 blur-2xl" />
+                <span className="solar-bloom absolute -top-14 -left-14 w-40 h-40" />
                 <span className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
                 <span className="absolute inset-0 flex items-center justify-center">
-                  <span className="flex items-center justify-center w-11 h-11 rounded-full bg-white/25 backdrop-blur-sm border border-white/40 transition-transform duration-300 group-hover:scale-110">
+                  <span className="flex items-center justify-center w-11 h-11 rounded-full bg-white/30 border border-white/40 transition-transform duration-300 group-hover:scale-110">
                     <Play className="w-5 h-5 text-white fill-white ml-0.5" />
                   </span>
                 </span>

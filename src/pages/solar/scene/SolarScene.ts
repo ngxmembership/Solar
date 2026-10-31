@@ -6,6 +6,7 @@ import {
   HemisphereLight,
   type Material,
   type Mesh,
+  type Object3D,
   PerspectiveCamera,
   PMREMGenerator,
   SRGBColorSpace,
@@ -64,8 +65,15 @@ export class SolarScene {
   private h = 1
   private readyFired = false
   private frame = 0
-  // Adaptive quality: sample frame times and drop pixel ratio if the device struggles.
-  private perf = { frames: 0, total: 0, downgrades: 0 }
+  private sized = false
+  // Shaders are compiled up-front (nothing compiles mid-scroll); no frame is drawn before that.
+  private compiled = false
+  // Full-res ceramic detail is painted only after the scene has been at rest for a moment.
+  private detailPending = false
+  private idleFor = 0
+  // Dynamic resolution: keeps the frame rate steady by nudging the pixel ratio within
+  // [min, max]; on capable devices it simply stays at full sharpness.
+  private dyn = { ema: 1 / 60, cooldown: 2, good: 0, min: 1, max: 1, lastUp: -10 }
 
   private camPos: [number, number, number] = [0, 0, 0]
   private camLook: [number, number, number] = [0, 0, 0]
@@ -78,7 +86,10 @@ export class SolarScene {
     this.opts = opts
     // Throws when WebGL is unavailable; the caller shows a static fallback.
     this.renderer = new WebGLRenderer({ canvas, antialias: !opts.isMobile, powerPreference: 'high-performance' })
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, opts.isMobile ? 1.5 : 2))
+    const maxPr = Math.min(window.devicePixelRatio || 1, opts.isMobile ? 1.5 : 2)
+    this.dyn.max = maxPr
+    this.dyn.min = Math.min(maxPr, opts.isMobile ? 0.85 : 1)
+    this.renderer.setPixelRatio(maxPr)
     this.renderer.outputColorSpace = SRGBColorSpace
     this.renderer.toneMapping = ACESFilmicToneMapping
 
@@ -95,8 +106,32 @@ export class SolarScene {
     this.scene.add(this.shell.group, this.core.group, this.planets.group, this.spheres.group)
 
     this.resize()
+    this.precompile()
     this.last = performance.now()
     this.raf = requestAnimationFrame(this.tick)
+  }
+
+  /** Compiles every material once — including ones hidden until later chapters (corona, light rays,
+   *  planets, crystal spheres) — so revealing them mid-scroll never stalls on shader compilation. */
+  private precompile() {
+    const hidden: Object3D[] = []
+    this.scene.traverse((o) => {
+      if (!o.visible) {
+        hidden.push(o)
+        o.visible = true
+      }
+    })
+    const done = () => {
+      this.compiled = true
+    }
+    try {
+      // compileAsync issues all compiles synchronously, then waits for the driver (parallel compile).
+      this.renderer.compileAsync(this.scene, this.camera).then(done, done)
+    } catch {
+      this.renderer.compile(this.scene, this.camera)
+      done()
+    }
+    hidden.forEach((o) => (o.visible = false))
   }
 
   setProgress(p: number) {
@@ -118,8 +153,13 @@ export class SolarScene {
   }
 
   resize() {
-    this.w = this.canvas.clientWidth || window.innerWidth
-    this.h = this.canvas.clientHeight || window.innerHeight
+    const w = this.canvas.clientWidth || window.innerWidth
+    const h = this.canvas.clientHeight || window.innerHeight
+    // Re-sizing reallocates the drawing buffer — skip when nothing actually changed.
+    if (this.sized && w === this.w && h === this.h) return
+    this.sized = true
+    this.w = w
+    this.h = h
     this.renderer.setSize(this.w, this.h, false)
     this.camera.aspect = this.w / this.h
     this.camera.updateProjectionMatrix()
@@ -143,31 +183,55 @@ export class SolarScene {
     this.renderer.dispose()
   }
 
+  private setPixelRatio(pr: number) {
+    this.renderer.setPixelRatio(pr)
+    this.renderer.setSize(this.w, this.h, false)
+    this.atmosphere.setPixelRatio(pr)
+  }
+
+  /** Smoothed frame time drives small pixel-ratio steps: down fast when frames are late,
+   *  back up slowly once there is headroom; a step that immediately fails locks the ceiling. */
   private adaptQuality(dt: number) {
-    if (this.time < 1.5 || this.perf.downgrades >= 2) return
-    this.perf.frames++
-    this.perf.total += dt
-    if (this.perf.frames < 90) return
-    const avg = this.perf.total / this.perf.frames
-    this.perf.frames = 0
-    this.perf.total = 0
+    const d = this.dyn
+    d.ema += (dt - d.ema) * 0.06
+    d.cooldown -= dt
+    if (d.cooldown > 0 || d.min >= d.max) return
     const pr = this.renderer.getPixelRatio()
-    if (avg > 1 / 42 && pr > 1) {
-      const next = Math.max(1, pr * 0.75)
-      this.renderer.setPixelRatio(next)
-      this.renderer.setSize(this.w, this.h, false)
-      this.atmosphere.setPixelRatio(next)
-      this.perf.downgrades++
+    if (d.ema > 1 / 48 && pr > d.min + 0.01) {
+      const next = Math.max(d.min, Math.round(pr * 0.85 * 100) / 100)
+      if (this.time - d.lastUp < 4) d.max = next
+      this.setPixelRatio(next)
+      d.cooldown = 1.2
+      d.good = 0
+    } else if (d.ema < 1 / 57) {
+      d.good += dt
+      if (d.good > 3 && pr < d.max - 0.01) {
+        this.setPixelRatio(Math.min(d.max, Math.round(pr * 1.1 * 100) / 100))
+        d.lastUp = this.time
+        d.cooldown = 2
+        d.good = 0
+      }
+    } else {
+      d.good = 0
     }
+  }
+
+  /** Paints the full-resolution ceramic maps and uploads them to the GPU right away,
+   *  in an idle slot, so the upload never lands on a scroll frame. */
+  private loadDetail() {
+    const run = () => this.shell.loadDetail().forEach((t) => this.renderer.initTexture(t))
+    if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 2000 })
+    else setTimeout(run, 0)
   }
 
   private tick = (now: number) => {
     this.raf = requestAnimationFrame(this.tick)
     const dt = Math.min(0.05, Math.max(0, (now - this.last) / 1000))
     this.last = now
+    if (!this.compiled) return
     const rm = this.opts.reducedMotion
     this.time += rm ? dt * 0.15 : dt
-    this.adaptQuality(dt)
+    if (this.readyFired) this.adaptQuality(dt)
 
     // Mass of the scene: progress glides after the scroll with a soft, long lag (~1.2s desktop).
     this.p = rm ? this.target : damp(this.p, this.target, this.opts.isMobile ? 3.4 : 2, dt)
@@ -218,15 +282,19 @@ export class SolarScene {
       Math.abs(this.pointer.x - this.pointer.sx) < 0.003 &&
       Math.abs(this.pointer.y - this.pointer.sy) < 0.003
     this.frame++
+    this.idleFor = idle ? this.idleFor + dt : 0
+    if (this.detailPending && this.idleFor > 0.6) {
+      this.detailPending = false
+      this.loadDetail()
+    }
     if (idle && this.readyFired && (this.frame & 1) === 1) return
 
     this.renderer.render(this.scene, this.camera)
     if (!this.readyFired) {
       this.readyFired = true
       this.opts.onReady?.()
-      // Heavy-but-hidden work waits for an idle moment after the first frame is on screen.
-      if ('requestIdleCallback' in window) window.requestIdleCallback(() => this.shell.loadDetail(), { timeout: 1500 })
-      else setTimeout(() => this.shell.loadDetail(), 600)
+      // Heavy-but-hidden work waits until the scene has been at rest for a moment (never mid-scroll).
+      this.detailPending = true
     }
   }
 

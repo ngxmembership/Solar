@@ -48,9 +48,11 @@ export default function SolarSite() {
       </div>
 
       {/* Layer 1: cinematic overlays — vignette fades with dawn, film grain on desktop */}
-      <div aria-hidden className="solar-vignette pointer-events-none fixed inset-0 z-[1]" />
-      <div aria-hidden className="solar-grain pointer-events-none fixed inset-0 z-[1] hidden md:block" />
-      <CursorLight />
+      <div ref={xp.fxRef} aria-hidden className="solar-fx">
+        <div className="solar-vignette pointer-events-none fixed inset-0 z-[1]" />
+        <div className="solar-grain pointer-events-none fixed inset-0 z-[1] hidden md:block" />
+        <CursorLight />
+      </div>
 
       {/* Layer 2: chrome */}
       <button

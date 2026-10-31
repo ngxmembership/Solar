@@ -23,17 +23,20 @@ export function SiteHeader({ light, scrolled, chapter, barRef, onNav, onDonate, 
     <header className={cn('fixed top-0 inset-x-0 z-40 transition-colors duration-500', light ? 'text-[color:var(--s-ink)]' : 'text-white')}>
       <div
         className={cn(
-          'absolute inset-0 -z-10 transition-all duration-500',
+          'absolute inset-0 -z-10 transition-[opacity,background-color,border-color] duration-500',
           scrolled ? 'opacity-100' : 'opacity-0',
           light
-            ? 'bg-white/45 md:backdrop-blur-xl border-b border-white/60'
-            : 'bg-[#100c26]/55 md:bg-[#100c26]/35 md:backdrop-blur-xl border-b border-white/5',
+            ? 'bg-[#fff8ee]/85 border-b border-white/60'
+            : 'bg-[#100c26]/80 border-b border-white/5',
         )}
       />
       <div className="mx-auto max-w-7xl px-4 md:px-12 h-16 flex items-center justify-between gap-4">
         <button onClick={() => onNav(0)} className="group flex items-center gap-2.5" aria-label="Солар — наверх">
           <span className="relative flex items-center justify-center w-8 h-8">
-            <span className={cn('absolute inset-0 rounded-full blur-md transition-opacity', light ? 'bg-amber-300/50' : 'bg-amber-300/30')} />
+            <span
+              className={cn('absolute -inset-1 rounded-full transition-opacity', light ? 'opacity-100' : 'opacity-70')}
+              style={{background: 'radial-gradient(circle, rgba(252,211,77,0.55), rgba(252,211,77,0) 70%)' }}
+            />
             <Sun className={cn('relative w-6 h-6 transition-transform duration-700 group-hover:rotate-90', light ? 'text-[color:var(--s-ember)]' : 'text-amber-300')} />
           </span>
           <span className="solar-display text-lg font-bold tracking-tight">Солар</span>

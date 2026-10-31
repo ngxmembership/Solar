@@ -265,19 +265,23 @@ export class Shell {
     return a && b
   }
 
-  /** Paints the full-resolution kintsugi maps into the existing textures (no shader recompile). */
-  loadDetail() {
-    if (this.detailLoaded) return
+  /** Paints the full-resolution kintsugi maps into the existing textures (no shader recompile).
+   *  Returns the updated textures so the caller can upload them to the GPU immediately. */
+  loadDetail(): Texture[] {
+    if (this.detailLoaded) return []
     this.detailLoaded = true
     const full = makeKintsugiTextures(this.detailSize.w, this.detailSize.h)
+    const updated: Texture[] = []
     const swap = (target: Texture | null, src: Texture) => {
       if (!target) return
       target.image = src.image
       target.needsUpdate = true
+      updated.push(target)
     }
     swap(this.ceramic.map, full.map)
     swap(this.ceramic.roughnessMap, full.ormMap)
     swap(this.ceramic.emissiveMap, full.emissiveMap)
+    return updated
   }
 
   dispose() {

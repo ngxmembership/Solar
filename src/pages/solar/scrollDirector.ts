@@ -17,16 +17,21 @@ interface PanelInfo {
 }
 
 function write(p: PanelInfo, el: HTMLElement, alpha: number, y: number) {
-  const key = `${alpha.toFixed(3)}|${y.toFixed(1)}`
+  const a = alpha > 0.995 ? 1 : alpha < 0.005 ? 0 : alpha
+  const ty = Math.abs(y) < 0.25 ? 0 : y
+  const key = `${a.toFixed(3)}|${ty.toFixed(1)}`
   if (p.cache.get(el) === key) return
   p.cache.set(el, key)
-  el.style.opacity = String(alpha)
-  el.style.transform = `translate3d(0, ${y}px, 0)`
-  el.style.visibility = alpha < 0.01 ? 'hidden' : 'visible'
+  // While moving, translate3d keeps the element on its own GPU layer (no repaint per frame).
+  // At rest (fully shown, in place) the layer is released, so dozens of cards don't pin
+  // GPU memory on weak phones; hidden elements are skipped by paint entirely.
+  const settled = a === 1 && ty === 0
+  el.style.opacity = String(a)
+  el.style.transform = settled ? 'none' : `translate3d(0, ${ty}px, 0)`
+  el.style.visibility = a === 0 ? 'hidden' : 'visible'
 }
 
-function applyPanel(p: PanelInfo, vh: number) {
-  const r = p.section.getBoundingClientRect()
+function applyPanel(p: PanelInfo, vh: number, r: DOMRect) {
   const H = r.height / vh
 
   if (p.mode === 'beat') {
@@ -143,13 +148,16 @@ export function startScrollDirector(
 
   const update = () => {
     pending = false
+    // Phase 1 — read everything (one layout pass)…
     const { vh, scrolled, max } = measure()
+    const rects = panels.map((p) => p.section.getBoundingClientRect())
     const now = performance.now()
     const v = ((scrolled - lastScrolled) / Math.max(1, now - lastT)) * 1000
     lastScrolled = scrolled
     lastT = now
+    // Phase 2 — …then write. Interleaving reads and writes would force extra layouts every frame.
     onProgress(clamp(scrolled / max), v)
-    for (const p of panels) applyPanel(p, vh)
+    panels.forEach((p, i) => applyPanel(p, vh, rects[i]!))
   }
 
   const schedule = () => {
