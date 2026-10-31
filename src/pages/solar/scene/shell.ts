@@ -160,14 +160,19 @@ export class Shell {
   private enamel: MeshStandardMaterial
   private ceramic: MeshStandardMaterial
   private textures: Texture[] = []
+  private detailSize: { w: number; h: number }
+  private detailLoaded = false
 
   constructor(isMobile: boolean) {
     const texW = isMobile ? 1024 : 2048
     const texH = isMobile ? 512 : 1024
+    this.detailSize = { w: texW, h: texH }
     const relief = makeReliefTexture(isMobile ? 256 : 512)
     relief.repeat.set(6, 3)
     const sky = makeCelestialTextures(texW, texH, { count: SHELL.petals, phase: SHELL_LAYERS.outer.phase, gap: SHELL_LAYERS.outer.gap })
-    const kin = makeKintsugiTextures(texW, texH)
+    // The inner ceramic shell is hidden inside the sealed sky shell at load, so it starts with tiny
+    // placeholder maps (same shader, no recompile) and gets full detail later via loadDetail().
+    const kin = makeKintsugiTextures(64, 32)
     this.textures.push(relief, sky.map, sky.ormMap, sky.emissiveMap, kin.map, kin.ormMap, kin.emissiveMap)
 
     // Outer face: night enamel + gold inlay. Desktop gets a clear lacquer coat (crisp highlights).
@@ -258,6 +263,21 @@ export class Shell {
     this.ceramic.emissiveIntensity = 0.2 + o.glow * 1.8
     this.group.rotation.y = o.progress * Math.PI * 0.5
     return a && b
+  }
+
+  /** Paints the full-resolution kintsugi maps into the existing textures (no shader recompile). */
+  loadDetail() {
+    if (this.detailLoaded) return
+    this.detailLoaded = true
+    const full = makeKintsugiTextures(this.detailSize.w, this.detailSize.h)
+    const swap = (target: Texture | null, src: Texture) => {
+      if (!target) return
+      target.image = src.image
+      target.needsUpdate = true
+    }
+    swap(this.ceramic.map, full.map)
+    swap(this.ceramic.roughnessMap, full.ormMap)
+    swap(this.ceramic.emissiveMap, full.emissiveMap)
   }
 
   dispose() {

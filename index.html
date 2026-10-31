@@ -12,11 +12,17 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;600;700&display=swap" rel="stylesheet" />
-    <style>html,body{background:#100c26;margin:0}</style>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;600;700&display=swap" /></noscript>
+    <style>
+      html,body{background:#100c26;margin:0}
+      .boot{position:fixed;inset:0;background:radial-gradient(ellipse 60% 45% at 50% 64%,rgba(74,52,120,.45),transparent 70%),linear-gradient(180deg,#100c26 0%,#1b1638 55%,#241a3f 100%)}
+      .boot i{position:absolute;left:50%;top:64%;width:min(34svh,48vw);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 38% 32%,rgba(120,100,200,.35),transparent 45%),radial-gradient(circle,#1d1747 0%,#120e2c 70%);box-shadow:0 0 0 1px rgba(227,183,94,.25),0 0 60px 6px rgba(255,170,80,.18),inset 0 0 40px rgba(255,170,80,.12)}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="boot" aria-hidden="true"><i></i></div></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

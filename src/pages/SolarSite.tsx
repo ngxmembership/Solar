@@ -42,14 +42,15 @@ export default function SolarSite() {
         className={cn('solar-canvas fixed left-0 top-0 w-full h-lvh block', xp.webglFailed && 'hidden')}
       />
       {xp.webglFailed && <div aria-hidden className="solar-fallback fixed inset-0" />}
+      {/* Instant CSS poster of the sealed, star-painted shell — visible from the first paint until 3D is ready */}
+      <div aria-hidden data-ready={xp.ready} className="solar-poster pointer-events-none fixed inset-0">
+        <span className="solar-poster-egg" />
+      </div>
 
       {/* Layer 1: cinematic overlays — vignette fades with dawn, film grain on desktop */}
       <div aria-hidden className="solar-vignette pointer-events-none fixed inset-0 z-[1]" />
       <div aria-hidden className="solar-grain pointer-events-none fixed inset-0 z-[1] hidden md:block" />
       <CursorLight />
-      <div aria-hidden data-ready={xp.ready} className="solar-loader pointer-events-none fixed inset-0 z-[2] flex items-center justify-center">
-        <span className="solar-loader-dot" />
-      </div>
 
       {/* Layer 2: chrome */}
       <button

@@ -224,6 +224,9 @@ export class SolarScene {
     if (!this.readyFired) {
       this.readyFired = true
       this.opts.onReady?.()
+      // Heavy-but-hidden work waits for an idle moment after the first frame is on screen.
+      if ('requestIdleCallback' in window) window.requestIdleCallback(() => this.shell.loadDetail(), { timeout: 1500 })
+      else setTimeout(() => this.shell.loadDetail(), 600)
     }
   }
 

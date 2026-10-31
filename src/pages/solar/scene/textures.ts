@@ -208,14 +208,23 @@ export function makeCelestialTextures(w: number, h: number, seams: { count: numb
   const [emC, em] = canvas(w, h)
   em.fillStyle = '#000'
   em.fillRect(0, 0, w, h)
-  const star = (x: number, y: number, r: number, a: number, warm: boolean) => {
-    const c = warm ? '255,214,150' : '235,235,255'
-    const g = em.createRadialGradient(x, y, 0, x, y, r * 3)
-    g.addColorStop(0, `rgba(${c},${a})`)
-    g.addColorStop(0.35, `rgba(${c},${a * 0.5})`)
+  // One pre-rendered glow sprite per tint, stamped with drawImage: ~10× faster than a gradient per star.
+  const sprite = (c: string) => {
+    const [sc, sx] = canvas(32, 32)
+    const g = sx.createRadialGradient(16, 16, 0, 16, 16, 16)
+    g.addColorStop(0, `rgba(${c},1)`)
+    g.addColorStop(0.35, `rgba(${c},0.5)`)
     g.addColorStop(1, `rgba(${c},0)`)
-    em.fillStyle = g
-    em.fillRect(x - r * 3, y - r * 3, r * 6, r * 6)
+    sx.fillStyle = g
+    sx.fillRect(0, 0, 32, 32)
+    return sc
+  }
+  const warmSprite = sprite('255,214,150')
+  const coolSprite = sprite('235,235,255')
+  const star = (x: number, y: number, r: number, a: number, warm: boolean) => {
+    em.globalAlpha = a
+    em.drawImage(warm ? warmSprite : coolSprite, x - r * 3, y - r * 3, r * 6, r * 6)
+    em.globalAlpha = 1
   }
   for (const st of stars) star(st.x, st.y, st.r, st.a, st.warm)
   for (const pts of constellations) for (const [px, py] of pts) star(px, py, 1.3 * s, 0.95, true)

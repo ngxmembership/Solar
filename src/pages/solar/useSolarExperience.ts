@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AmbientSound } from './ambient'
 import { chapterIndexAt, LIGHT_FROM } from './chapters'
-import { SolarScene } from './scene/SolarScene'
+import type { SolarScene } from './scene/SolarScene'
 import { startScrollDirector, type ScrollDirector } from './scrollDirector'
 
 export function useSolarExperience() {
@@ -40,17 +40,34 @@ export function useSolarExperience() {
     const track = trackRef.current
     if (!canvas || !root || !track) return
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const isMobile = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768
+    // Phones, and laptops with few cores / little memory, get the lighter graphics tier.
+    const nav = navigator as Navigator & { deviceMemory?: number }
+    const isMobile =
+      window.matchMedia('(pointer: coarse)').matches ||
+      window.innerWidth < 768 ||
+      (nav.hardwareConcurrency ?? 8) <= 4 ||
+      (nav.deviceMemory ?? 8) <= 4
 
+    // The 3D engine (three.js) is its own chunk, fetched only after the page has painted:
+    // the title, sky and CSS poster appear instantly; the scene fades in over them when ready.
     let scene: SolarScene | null = null
-    try {
-      scene = new SolarScene(canvas, { isMobile, reducedMotion, onReady: () => setReady(true) })
-      sceneRef.current = scene
-    } catch (err) {
-      console.warn('WebGL unavailable, showing static fallback', err)
-      setWebglFailed(true)
-      setReady(true)
+    let disposed = false
+    let lastP = 0
+    const boot = async () => {
+      try {
+        const mod = await import('./scene/SolarScene')
+        if (disposed) return
+        scene = new mod.SolarScene(canvas, { isMobile, reducedMotion, onReady: () => setReady(true) })
+        scene.setProgress(lastP)
+        sceneRef.current = scene
+      } catch (err) {
+        console.warn('WebGL unavailable, showing static fallback', err)
+        setWebglFailed(true)
+        setReady(true)
+      }
     }
+    const idleId = 'requestIdleCallback' in window ? window.requestIdleCallback(() => void boot(), { timeout: 300 }) : null
+    const timeoutId = idleId === null ? setTimeout(() => void boot(), 50) : null
 
     // Local mirrors so state is only set when a threshold is actually crossed.
     const ui = { light: false, scrolled: false, chapter: 0 }
@@ -58,6 +75,7 @@ export function useSolarExperience() {
       root,
       track,
       (p, v) => {
+        lastP = p
         scene?.setProgress(p)
         scene?.setVelocity(v)
         ambientRef.current.setProgress(p)
@@ -84,6 +102,9 @@ export function useSolarExperience() {
     const ambient = ambientRef.current
 
     return () => {
+      disposed = true
+      if (idleId !== null) window.cancelIdleCallback(idleId)
+      if (timeoutId !== null) clearTimeout(timeoutId)
       ambient.stop()
       window.removeEventListener('pointermove', onPointer)
       ro.disconnect()

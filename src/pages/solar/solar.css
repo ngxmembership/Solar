@@ -217,6 +217,38 @@
   will-change: transform;
 }
 
+/* First-paint poster: pure CSS sky + sealed shell, shown until the 3D scene's first frame. */
+.solar-poster {
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 64%, rgba(74, 52, 120, 0.45), transparent 70%),
+    linear-gradient(180deg, #100c26 0%, #1b1638 55%, #241a3f 100%);
+  transition: opacity 1.2s ease-out;
+}
+.solar-poster[data-ready='true'] {
+  opacity: 0;
+}
+.solar-poster-egg {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: min(34svh, 48vw);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 38% 32%, rgba(120, 100, 200, 0.35), transparent 45%),
+    radial-gradient(circle at 50% 50%, #1d1747 0%, #120e2c 70%);
+  box-shadow:
+    0 0 0 1px rgba(227, 183, 94, 0.25),
+    0 0 60px 6px rgba(255, 170, 80, 0.18),
+    inset 0 0 40px rgba(255, 170, 80, 0.12);
+  animation: solar-breathe-soft 2.5s ease-in-out infinite;
+}
+@keyframes solar-breathe-soft {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(227, 183, 94, 0.25), 0 0 50px 4px rgba(255, 170, 80, 0.14), inset 0 0 36px rgba(255, 170, 80, 0.1); }
+  50% { box-shadow: 0 0 0 1px rgba(227, 183, 94, 0.35), 0 0 80px 10px rgba(255, 170, 80, 0.26), inset 0 0 50px rgba(255, 170, 80, 0.18); }
+}
+
 /* First-frame reveal: canvas fades in once shaders are compiled. */
 .solar-canvas {
   opacity: 0;
