@@ -31,7 +31,7 @@ function write(p: PanelInfo, el: HTMLElement, alpha: number, y: number) {
   el.style.visibility = a === 0 ? 'hidden' : 'visible'
 }
 
-function applyPanel(p: PanelInfo, vh: number, r: DOMRect) {
+function applyPanel(p: PanelInfo, vh: number, r: DOMRect, compact: boolean) {
   const H = r.height / vh
 
   if (p.mode === 'beat') {
@@ -71,7 +71,12 @@ function applyPanel(p: PanelInfo, vh: number, r: DOMRect) {
   if (p.mode === 'mid') {
     const inT = range(u, 0.45, 1)
     const outT = range(u, H, H + 0.45)
-    write(p, p.el, Math.min(inT, 1 - outT), (1 - inT) * 50 - outT * 50)
+    // Slow drift along the scroll for the whole life of the chapter, so the panel never feels
+    // pinned: it enters slightly low and leaves slightly high (reverse scroll replays it exactly).
+    // Phones: the panel sits at the bottom edge, so it only drifts upward.
+    const life = range(u, 0.45, H + 0.45)
+    const drift = compact ? -life * vh * 0.05 : (0.5 - life) * vh * 0.14
+    write(p, p.el, Math.min(inT, 1 - outT), (1 - inT) * 50 - outT * 50 + drift)
     p.items.forEach((el, i) => {
       const t = range(u, 0.6 + i * 0.07, 0.95 + i * 0.07)
       write(p, el, t, (1 - t) * 28)
@@ -151,13 +156,14 @@ export function startScrollDirector(
     // Phase 1 — read everything (one layout pass)…
     const { vh, scrolled, max } = measure()
     const rects = panels.map((p) => p.section.getBoundingClientRect())
+    const compact = window.innerWidth < 768
     const now = performance.now()
     const v = ((scrolled - lastScrolled) / Math.max(1, now - lastT)) * 1000
     lastScrolled = scrolled
     lastT = now
     // Phase 2 — …then write. Interleaving reads and writes would force extra layouts every frame.
     onProgress(clamp(scrolled / max), v)
-    panels.forEach((p, i) => applyPanel(p, vh, rects[i]!))
+    panels.forEach((p, i) => applyPanel(p, vh, rects[i]!, compact))
   }
 
   const schedule = () => {
