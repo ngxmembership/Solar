@@ -1,6 +1,7 @@
 // Mobile chapter menu: a slide-in sheet with the story chapters and the support CTA.
 import { useState } from 'react'
-import { Heart, Menu } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ChevronRight, Heart, Menu, MessagesSquare } from 'lucide-react'
 import { cn } from '../../../lib/shadcn/utils'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../../../lib/shadcn/sheet'
 import { CHAPTERS } from '../chapters'
@@ -57,6 +58,20 @@ export function MobileMenu({ light, chapter, onNav, onDonate }: Props) {
             )
           })}
         </nav>
+        <Link
+          to="/forum"
+          onClick={() => setOpen(false)}
+          className="mt-5 flex items-center gap-3 rounded-2xl bg-white/70 border border-[#2a1f3d]/[0.08] px-4 py-3.5 text-[#2a1f3d]"
+        >
+          <span className="inline-flex w-9 h-9 items-center justify-center rounded-full bg-gradient-to-br from-[#fff1c9] to-[#ffd27a]">
+            <MessagesSquare className="w-[18px] h-[18px] text-[#b8641f]" />
+          </span>
+          <span className="flex-1">
+            <span className="block font-bold">Форум «Круг Солара»</span>
+            <span className="block text-xs text-[#2a1f3d]/60">Беседы о свете и добре</span>
+          </span>
+          <ChevronRight className="w-4 h-4 text-[#2a1f3d]/40" />
+        </Link>
         <button onClick={() => after(onDonate)} className="solar-btn solar-btn--ink mt-auto w-full !py-3.5">
           <Heart className="w-4 h-4 fill-rose-300 text-rose-300" />
           Поддержать проект

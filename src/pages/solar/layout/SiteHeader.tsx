@@ -1,6 +1,7 @@
 // Fixed header: logo, chapter nav, sound toggle, "Поддержать" CTA and the scroll progress hairline.
 import type { Ref } from 'react'
-import { Heart, Sun, Volume2, VolumeX } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Heart, MessagesSquare, Sun, Volume2, VolumeX } from 'lucide-react'
 import { cn } from '../../../lib/shadcn/utils'
 import { CHAPTERS } from '../chapters'
 import { MobileMenu } from './MobileMenu'
@@ -65,6 +66,17 @@ export function SiteHeader({ light, scrolled, chapter, barRef, onNav, onDonate, 
               </button>
             )
           })}
+          <span aria-hidden className={cn('mx-1 h-4 w-px', light ? 'bg-[#2a1f3d]/15' : 'bg-white/20')} />
+          <Link
+            to="/forum"
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors',
+              light ? 'text-[color:var(--s-ink-soft)] hover:text-[color:var(--s-ink)] hover:bg-black/5' : 'text-white/70 hover:text-white hover:bg-white/10',
+            )}
+          >
+            <MessagesSquare className="w-4 h-4" />
+            Форум
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">

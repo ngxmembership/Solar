@@ -1,0 +1,185 @@
+/* ============================================================
+   «Круг Солара» — forum surfaces. Morning palette of the site
+   (cream, ink, gold); like the site, it keeps its own palette in
+   both light and dark app modes.
+   ============================================================ */
+
+.forum-root {
+  --f-bg: #fff8ee;
+  --f-ink: #2a1f3d;
+  --f-ink-soft: rgba(42, 31, 61, 0.66);
+  --f-ink-faint: rgba(42, 31, 61, 0.45);
+  --f-line: rgba(42, 31, 61, 0.08);
+  --f-gold: #e08a2e;
+  --f-rust: #b8641f;
+  background-color: var(--f-bg);
+  color: var(--f-ink);
+}
+
+/* Fixed morning sky behind everything */
+.forum-sky {
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(255, 196, 120, 0.55), transparent 70%),
+    radial-gradient(ellipse 45% 35% at 100% 0%, rgba(255, 143, 122, 0.16), transparent 70%),
+    radial-gradient(ellipse 45% 35% at 0% 10%, rgba(196, 168, 240, 0.16), transparent 70%),
+    linear-gradient(180deg, #fff0dc 0%, #fff8ee 38%, #fffaf4 100%);
+}
+
+/* Cards */
+.forum-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--f-line);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 18px 40px -30px rgba(184, 100, 31, 0.4);
+}
+.forum-card--link {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s, border-color 0.3s;
+}
+.forum-card--link:hover {
+  transform: translateY(-2px);
+  border-color: rgba(224, 138, 46, 0.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 22px 46px -26px rgba(184, 100, 31, 0.5);
+}
+
+/* Topic rows: a quiet list inside one card */
+.forum-row {
+  transition: background-color 0.2s;
+}
+.forum-row:hover {
+  background-color: rgba(255, 236, 210, 0.45);
+}
+.forum-row + .forum-row {
+  border-top: 1px solid var(--f-line);
+}
+
+/* Hero emblem: Solar inside concentric rings — "the circle" */
+.forum-emblem {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+}
+.forum-emblem > span {
+  position: absolute;
+  border-radius: 9999px;
+  inset: var(--i);
+  border: 1px solid rgba(184, 100, 31, var(--a));
+}
+.forum-emblem .forum-emblem-dash {
+  border-style: dashed;
+  animation: forum-turn 120s linear infinite;
+}
+.forum-emblem .forum-emblem-sun {
+  border: none;
+  background: radial-gradient(circle at 40% 35%, #fff8e6 0%, #ffd27a 45%, #ff9f6b 100%);
+  box-shadow:
+    0 0 40px 10px rgba(255, 190, 110, 0.55),
+    0 0 120px 30px rgba(255, 190, 110, 0.25);
+  animation: forum-breathe 6s ease-in-out infinite;
+}
+@keyframes forum-turn {
+  to { transform: rotate(360deg); }
+}
+@keyframes forum-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* Chips */
+.forum-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.forum-filter {
+  border-radius: 9999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid var(--f-line);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--f-ink-soft);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.forum-filter:hover {
+  color: var(--f-ink);
+  background: #fff;
+}
+.forum-filter[aria-pressed='true'] {
+  background: var(--f-ink);
+  border-color: var(--f-ink);
+  color: #fff;
+}
+
+/* Opening post rendered from GitHub (already sanitized by GitHub) */
+.forum-prose {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(42, 31, 61, 0.88);
+  overflow-wrap: anywhere;
+}
+.forum-prose > * + * { margin-top: 0.85em; }
+.forum-prose h1,
+.forum-prose h2,
+.forum-prose h3 {
+  font-family: 'Unbounded', 'Manrope', var(--font-sans);
+  color: var(--f-ink);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.4em;
+}
+.forum-prose h1 { font-size: 1.35rem; }
+.forum-prose h2 { font-size: 1.2rem; }
+.forum-prose h3 { font-size: 1.05rem; }
+.forum-prose ul { list-style: disc; padding-left: 1.3em; }
+.forum-prose ol { list-style: decimal; padding-left: 1.3em; }
+.forum-prose li + li { margin-top: 0.3em; }
+.forum-prose li::marker { color: var(--f-gold); }
+.forum-prose a { color: var(--f-rust); text-decoration: underline; text-underline-offset: 3px; }
+.forum-prose strong { color: var(--f-ink); }
+.forum-prose blockquote {
+  border-left: 3px solid #ffd27a;
+  padding: 0.2em 0 0.2em 1em;
+  color: var(--f-ink-soft);
+}
+.forum-prose code {
+  background: rgba(255, 210, 122, 0.25);
+  border-radius: 6px;
+  padding: 0.1em 0.35em;
+  font-size: 0.9em;
+}
+.forum-prose img { max-width: 100%; border-radius: 14px; }
+
+/* Thread loading shimmer */
+.forum-shimmer {
+  background: linear-gradient(90deg, rgba(42, 31, 61, 0.05) 0%, rgba(42, 31, 61, 0.1) 50%, rgba(42, 31, 61, 0.05) 100%);
+  background-size: 200% 100%;
+  animation: forum-shimmer 1.4s ease-in-out infinite;
+  border-radius: 12px;
+}
+@keyframes forum-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+.forum-rise {
+  animation: solar-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forum-root *,
+  .forum-root *::before,
+  .forum-root *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}

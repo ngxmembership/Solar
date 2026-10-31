@@ -1,7 +1,8 @@
 // Epilogue (after the story track, Solar stays risen): epigraph → image of the world + path
 // from thought to deed → the team's words and the call to support → footer.
 // Each row is its own <section> so it reveals as it enters the viewport.
-import { ArrowRight, Hand, Heart, HeartHandshake, Lightbulb, Sun, Sparkles } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Hand, Heart, HeartHandshake, Lightbulb, MessagesSquare, Sun, Sparkles } from 'lucide-react'
 import { EPIGRAPH, PRINCIPLES, UNITY, WORLD_PARABLE } from '../content'
 import { CrystalSky } from './CrystalSky'
 
@@ -89,6 +90,32 @@ export function Epilogue({ onDonate }: { onDonate: () => void }) {
             })}
           </ol>
         </article>
+      </section>
+
+      {/* The circle: invitation to the forum */}
+      <section data-panel="reveal" className="mb-4 md:mb-5">
+        <Link
+          to="/forum"
+          className="group solar-glass-light rounded-[28px] p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-5 md:gap-8 transition-transform duration-300 hover:-translate-y-0.5"
+        >
+          <span aria-hidden className="relative w-20 h-20 shrink-0">
+            <span className="absolute inset-0 rounded-full border border-[#b8641f]/20" />
+            <span className="absolute inset-[18%] rounded-full border border-dashed border-[#b8641f]/35" />
+            <span className="absolute inset-[34%] rounded-full bg-[radial-gradient(circle_at_40%_35%,#fff8e6,#ffd27a_45%,#ff9f6b)] shadow-[0_0_24px_6px_rgba(255,190,110,0.55)]" />
+          </span>
+          <div className="flex-1">
+            <div className="solar-eyebrow solar-eyebrow--light mb-2">Форум</div>
+            <h3 className="solar-display text-xl md:text-3xl font-bold mb-2">Круг Солара</h3>
+            <p className="text-sm md:text-base text-[color:var(--s-ink-soft)] max-w-2xl">
+              Обсуждайте ролики и книги, делитесь мыслями о пути к себе, предлагайте идеи — в кругу тех, кому близки свет и добро.
+            </p>
+          </div>
+          <span className="solar-btn solar-btn--ink self-start md:self-center !px-6 !py-3">
+            <MessagesSquare className="w-4 h-4" />
+            Войти в Круг
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </Link>
       </section>
 
       {/* The team's words + support */}

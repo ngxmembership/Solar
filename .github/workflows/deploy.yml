@@ -4,11 +4,19 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Форум «Круг Солара»: пересобираем список бесед, когда в Discussions что-то меняется
+  discussion:
+    types: [created, edited, deleted, transferred, category_changed, pinned, unpinned, locked, unlocked, answered, unanswered]
+  discussion_comment:
+    types: [created, edited, deleted]
+  schedule:
+    - cron: '23 */6 * * *'
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  discussions: read
 
 concurrency:
   group: pages
@@ -23,6 +31,10 @@ jobs:
         with:
           node-version: 22
       - run: npm install --no-audit --no-fund
+      - name: Беседы форума → forum.json
+        run: node scripts/fetch-forum.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
