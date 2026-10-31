@@ -3,7 +3,7 @@
 // Pure SVG + one CSS rotation — no images, crisp at any size, almost free to render.
 import { Moon } from 'lucide-react'
 import { CRYSTAL_SKY } from '../content'
-import { SPHERE_COLORS } from '../scene/spheres'
+import { SPHERE_COLORS } from '../palette'
 
 const C = 170
 const radius = (i: number) => 150 - i * 16

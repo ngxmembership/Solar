@@ -14,10 +14,10 @@ import {
   MeshBasicMaterial,
   SphereGeometry,
 } from 'three'
+import { SPHERE_COLORS } from '../palette'
 import { range } from '../sceneMath'
 
-/** Index 0 is the outermost sphere (the Moon's gate, cool violet); the innermost, nearest Solar, is warm. */
-export const SPHERE_COLORS = ['#c4a8f0', '#8f9cf0', '#8cc8f0', '#8fe3c8', '#ffd27a', '#ffb547', '#ff8f7a'] as const
+export { SPHERE_COLORS }
 
 const SEGMENTS = 160
 
